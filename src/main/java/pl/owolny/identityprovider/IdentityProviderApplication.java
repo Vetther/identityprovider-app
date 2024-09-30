@@ -31,17 +31,21 @@ public class IdentityProviderApplication {
     }
 
     @GetMapping("/")
-    public String home(@AuthenticationPrincipal AuthenticatedUser user) {
-        return """
-                <h1>Welcome to Identity Provider</h1>
-                <p>Your ID: %s</p>
-                <p>Your authorities: %s</p>
-                """.formatted(user.userId().value(), user.authorities());
+    public String home(@AuthenticationPrincipal Object user) {
+
+        if (user instanceof AuthenticatedUser) {
+            return """
+                    <h1>Welcome to Identity Provider</h1>
+                    <p>Your ID: %s</p>
+                    <p>Your authorities: %s</p>
+                    """.formatted(((AuthenticatedUser) user).getUserId().value(), ((AuthenticatedUser) user).getAuthorities());
+        }
+        return "<h1>Welcome to Identity Provider</h1> " +
+                "<p>Object:</p>" + user;
     }
 
     @Bean
-    public String test(UserService userService,
-                       UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) {
+    public String test(UserService userService, UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) {
 
         RoleInfo roleInfo = roleService.createNew(RoleName.ROLE_USER);
         log.warn("Created role: {}", roleInfo.getName());

@@ -1,6 +1,7 @@
-package pl.owolny.identityprovider.infrastructure.authentication;
+package pl.owolny.identityprovider.infrastructure.authentication.credentials;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import pl.owolny.identityprovider.domain.role.RoleId;
 import pl.owolny.identityprovider.domain.role.RoleInfo;
@@ -14,24 +15,24 @@ import pl.owolny.identityprovider.vo.Email;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class UserDetailsService {
+class CredentialsUserService implements UserDetailsService {
 
     private final UserService userService;
     private final RoleUserService roleUserService;
     private final RoleService roleService;
 
-    public UserDetailsService(UserService userService, RoleUserService roleUserService, RoleService roleService) {
+    public CredentialsUserService(UserService userService, RoleUserService roleUserService, RoleService roleService) {
         this.userService = userService;
         this.roleUserService = roleUserService;
         this.roleService = roleService;
     }
 
-    public AuthenticatedUser loadUser(String usernameOrEmail) throws UsernameNotFoundException {
+    public CredentialsAuthenticatedUser loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
 
         UserInfo userInfo = this.getUserInfo(usernameOrEmail);
         Set<RoleInfo> userRoles = this.getUserRoles(userInfo);
 
-        return new AuthenticatedUser(
+        return new CredentialsAuthenticatedUser(
                 userInfo.getId(),
                 userRoles.stream()
                         .flatMap(role -> role.getAuthorities().stream())

@@ -1,4 +1,4 @@
-package pl.owolny.identityprovider.infrastructure.authentication;
+package pl.owolny.identityprovider.infrastructure.authentication.credentials;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,14 +9,14 @@ import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
 import pl.owolny.identityprovider.domain.user.UserService;
 
 @Configuration(proxyBeanMethods = false)
-class AuthenticationConfiguration {
+class CredentialsAuthenticationConfig {
 
     private final CredentialsService credentialsService;
     private final UserService userService;
     private final RoleUserService roleUserService;
     private final RoleService roleService;
 
-    AuthenticationConfiguration(CredentialsService credentialsService, UserService userService, RoleUserService roleUserService, RoleService roleService) {
+    CredentialsAuthenticationConfig(CredentialsService credentialsService, UserService userService, RoleUserService roleUserService, RoleService roleService) {
         this.credentialsService = credentialsService;
         this.userService = userService;
         this.roleUserService = roleUserService;
@@ -25,9 +25,9 @@ class AuthenticationConfiguration {
 
     @Bean
     AuthenticationProvider authenticationProvider() {
-        return new AuthenticationProviderImpl(
+        return new CredentialsAuthenticationProvider(
                 this.credentialsService,
-                new UserDetailsService(this.userService, this.roleUserService, this.roleService)
+                new CredentialsUserService(this.userService, this.roleUserService, this.roleService)
         );
     }
 }

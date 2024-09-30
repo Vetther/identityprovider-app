@@ -1,4 +1,4 @@
-package pl.owolny.identityprovider.infrastructure.authentication;
+package pl.owolny.identityprovider.infrastructure.authentication.credentials;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -9,14 +9,14 @@ import org.springframework.security.core.AuthenticationException;
 import pl.owolny.identityprovider.domain.credentials.CredentialsService;
 
 @Slf4j
-class AuthenticationProviderImpl implements AuthenticationProvider {
+class CredentialsAuthenticationProvider implements AuthenticationProvider {
 
     private final CredentialsService credentialsService;
-    private final UserDetailsService userDetailsService;
+    private final CredentialsUserService credentialsUserService;
 
-    public AuthenticationProviderImpl(CredentialsService credentialsService, UserDetailsService userDetailsService) {
+    public CredentialsAuthenticationProvider(CredentialsService credentialsService, CredentialsUserService credentialsUserService) {
         this.credentialsService = credentialsService;
-        this.userDetailsService = userDetailsService;
+        this.credentialsUserService = credentialsUserService;
     }
 
     @Override
@@ -24,7 +24,7 @@ class AuthenticationProviderImpl implements AuthenticationProvider {
         var usernameOrEmail = authentication.getName();
         var password = authentication.getCredentials().toString();
 
-        AuthenticatedUser authUser = userDetailsService.loadUser(usernameOrEmail);
+        CredentialsAuthenticatedUser authUser = credentialsUserService.loadUserByUsername(usernameOrEmail);
 
         if (!credentialsService.checkPassword(authUser.userId(), password)) {
             throw new BadCredentialsException("Invalid credentials");
@@ -33,7 +33,7 @@ class AuthenticationProviderImpl implements AuthenticationProvider {
         return createSuccessAuthentication(authUser, authentication);
     }
 
-    protected Authentication createSuccessAuthentication(AuthenticatedUser principal, Authentication authentication) {
+    protected Authentication createSuccessAuthentication(CredentialsAuthenticatedUser principal, Authentication authentication) {
         UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal, authentication.getCredentials(), principal.authorities());
         result.setDetails(authentication.getDetails());
         log.info("User authenticated: {}", principal);

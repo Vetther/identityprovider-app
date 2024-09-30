@@ -5,7 +5,8 @@ import pl.owolny.identityprovider.domain.user.UserId;
 
 import java.util.Collection;
 
-public record AuthenticatedUser(
-        UserId userId,
-        Collection<? extends GrantedAuthority> authorities) {
+public interface AuthenticatedUser {
+
+    UserId getUserId();
+    Collection<? extends GrantedAuthority> getAuthorities();
 }

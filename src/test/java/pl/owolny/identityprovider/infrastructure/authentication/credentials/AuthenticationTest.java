@@ -1,4 +1,4 @@
-package pl.owolny.identityprovider.infrastructure.authentication;
+package pl.owolny.identityprovider.infrastructure.authentication.credentials;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,16 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-class AuthenticationProviderImplTest {
+class CredentialsAuthenticationProviderTest {
 
     @Mock
     private CredentialsService credentialsService;
 
     @Mock
-    private UserDetailsService userDetailsService;
+    private CredentialsUserService userDetailsService;
 
     @InjectMocks
-    private AuthenticationProviderImpl authenticationProvider;
+    private CredentialsAuthenticationProvider authenticationProvider;
 
     @BeforeEach
     void setUp() {
@@ -45,7 +45,7 @@ class AuthenticationProviderImplTest {
         var userId = new UserId(UUID.randomUUID());
         var authorities = Set.of(new SimpleGrantedAuthority("USER_READ"));
 
-        var authenticationPrincipal = new AuthenticatedUser(userId, authorities);
+        var authenticationPrincipal = new CredentialsAuthenticatedUser(userId, authorities);
         when(userDetailsService.loadUser(usernameOrEmail)).thenReturn(authenticationPrincipal);
         when(credentialsService.checkPassword(userId, password)).thenReturn(true);
 
@@ -68,7 +68,7 @@ class AuthenticationProviderImplTest {
         var userId = new UserId(UUID.randomUUID());
         var authorities = Set.of(new SimpleGrantedAuthority("USER_READ"));
 
-        var authenticationPrincipal = new AuthenticatedUser(userId, authorities);
+        var authenticationPrincipal = new CredentialsAuthenticatedUser(userId, authorities);
         when(userDetailsService.loadUser(usernameOrEmail)).thenReturn(authenticationPrincipal);
         when(credentialsService.checkPassword(userId, password)).thenReturn(false);
 

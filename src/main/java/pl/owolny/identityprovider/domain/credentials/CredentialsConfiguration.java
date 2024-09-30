@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class CredentialsConfiguration {
 
     private final CredentialsRepository credentialsRepository;
@@ -19,7 +19,6 @@ class CredentialsConfiguration {
         return new CredentialsServiceImpl(encoder(), credentialsRepository);
     }
 
-    @Bean
     PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
