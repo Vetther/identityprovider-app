@@ -7,6 +7,7 @@ import pl.owolny.identityprovider.domain.federatedidentity.FederatedIdentityServ
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
 import pl.owolny.identityprovider.domain.user.UserService;
+import pl.owolny.identityprovider.domain.userprofile.UserProfileService;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.map.OAuth2UserMapper;
 
 import java.util.Map;
@@ -18,18 +19,20 @@ class OAuth2AuthenticationConfig {
     private final FederatedIdentityService federatedIdentityService;
     private final RoleUserService roleUserService;
     private final RoleService roleService;
+    private final UserProfileService userProfileService;
     private final Map<String, OAuth2UserMapper> mappers;
 
-    OAuth2AuthenticationConfig(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, Map<String, OAuth2UserMapper> mappers) {
+    OAuth2AuthenticationConfig(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, UserProfileService userProfileService, Map<String, OAuth2UserMapper> mappers) {
         this.userService = userService;
         this.federatedIdentityService = federatedIdentityService;
         this.roleUserService = roleUserService;
         this.roleService = roleService;
+        this.userProfileService = userProfileService;
         this.mappers = mappers;
     }
 
     @Bean
     AuthenticationProvider oAuth2AuthenticationProvider() {
-        return new OAuth2AuthenticationProvider(this.userService, this.federatedIdentityService, this.roleUserService, this.roleService, mappers);
+        return new OAuth2AuthenticationProvider(this.userService, this.federatedIdentityService, this.roleUserService, this.roleService, this.userProfileService, mappers);
     }
 }

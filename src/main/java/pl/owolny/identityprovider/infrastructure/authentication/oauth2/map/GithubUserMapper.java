@@ -12,7 +12,6 @@ import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2Use
 import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.vo.IdentityProvider;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 

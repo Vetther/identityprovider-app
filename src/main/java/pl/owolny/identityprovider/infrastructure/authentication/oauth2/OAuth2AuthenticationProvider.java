@@ -1,13 +1,15 @@
 package pl.owolny.identityprovider.infrastructure.authentication.oauth2;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.Assert;
@@ -18,8 +20,10 @@ import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
 import pl.owolny.identityprovider.domain.user.UserInfo;
 import pl.owolny.identityprovider.domain.user.UserService;
-import pl.owolny.identityprovider.infrastructure.authentication.AuthenticateUser;
+import pl.owolny.identityprovider.domain.userprofile.UserProfileService;
+import pl.owolny.identityprovider.infrastructure.authentication.AuthenticationFactory;
 import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUser;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.exception.OAuth2EmailUnverifiedException;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.map.OAuth2UserMapper;
 import pl.owolny.identityprovider.vo.Email;
 
@@ -29,16 +33,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider implements AuthenticateUser {
+class OAuth2AuthenticationProvider implements AuthenticationProvider, AuthenticationFactory {
 
+    private final OidcAuthorizationCodeAuthenticationProvider oidcProvider;
+    private final OAuth2LoginAuthenticationProvider oauth2Provider;
     private final UserService userService;
     private final FederatedIdentityService federatedIdentityService;
     private final RoleUserService roleUserService;
     private final RoleService roleService;
+    private final UserProfileService userProfileService;
     private final Map<String, OAuth2UserMapper> mappers;
 
-    public OAuth2AuthenticationProvider(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, Map<String, OAuth2UserMapper> mappers) {
-        super(new DefaultAuthorizationCodeTokenResponseClient(), new DefaultOAuth2UserService());
+    public OAuth2AuthenticationProvider(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, UserProfileService userProfileService, Map<String, OAuth2UserMapper> mappers) {
+        this.oauth2Provider = new OAuth2LoginAuthenticationProvider(new DefaultAuthorizationCodeTokenResponseClient(), new DefaultOAuth2UserService());
+        this.oidcProvider = new OidcAuthorizationCodeAuthenticationProvider(new DefaultAuthorizationCodeTokenResponseClient(), new OidcUserService());
+        this.userProfileService = userProfileService;
         this.userService = userService;
         this.federatedIdentityService = federatedIdentityService;
         this.roleUserService = roleUserService;
@@ -48,10 +57,11 @@ class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider imp
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        OAuth2LoginAuthenticationToken authenticated = (OAuth2LoginAuthenticationToken) super.authenticate(authentication);
-        if (authenticated == null) {
-            return null;
-        }
+        OAuth2LoginAuthenticationToken authenticated = isOidcProvider((OAuth2LoginAuthenticationToken) authentication)
+                ? (OAuth2LoginAuthenticationToken) oidcProvider.authenticate(authentication)
+                : (OAuth2LoginAuthenticationToken) oauth2Provider.authenticate(authentication);
+
+        if (authenticated == null) return null;
 
         OAuth2UserMapper mapper = getMapper(authenticated.getClientRegistration().getRegistrationId());
         OAuth2UserInfo oAuth2UserInfo = mapper.map(authenticated);
@@ -70,6 +80,10 @@ class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider imp
         boolean userWithEmailExists = userByEmail.isPresent();
 
         if (!userWithEmailExists) {
+            if (!oAuth2UserInfo.isExternalEmailVerified()) {
+                log.info("[OAuth2] User with email didnt exists, but external email was not verified: {}", email);
+                throw new OAuth2EmailUnverifiedException(oAuth2UserInfo);
+            }
             UserInfo userInfo = createNewUser(oAuth2UserInfo);
             log.info("[OAuth2] User with email didnt exists, created new: {}", userInfo.getId());
             return createSuccessAuthentication(new OAuth2AuthenticatedUser(userInfo.getId(), getUserAuthorities(userInfo), null), authenticated);
@@ -79,13 +93,17 @@ class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider imp
 
         if (!userInfo.isEmailVerified() && oAuth2UserInfo.isExternalEmailVerified()) {
             log.info("[OAuth2] UserInfo or OAuth2UserInfo email was not verified: {}", userInfo.getId());
-            throw new UsernameNotFoundException("Email not verified");
+            throw new OAuth2EmailUnverifiedException(userInfo, oAuth2UserInfo);
         }
 
         log.info("[OAuth2] UserInfo and OAuth2UserInfo emails were verified: {}/{}", userInfo.getId(), oAuth2UserInfo);
         log.info("[OAuth2] Linking account with federated account");
-        federatedIdentityService.createNew(userInfo.getId(), oAuth2UserInfo.externalId(), oAuth2UserInfo.provider(), oAuth2UserInfo.externalUsername(), oAuth2UserInfo.externalEmail(), oAuth2UserInfo.isExternalEmailVerified());
+        linkUserWithFederatedAccount(userInfo, oAuth2UserInfo);
         return createSuccessAuthentication(new OAuth2AuthenticatedUser(userInfo.getId(), getUserAuthorities(userInfo), null), authenticated);
+    }
+
+    private boolean isOidcProvider(OAuth2LoginAuthenticationToken authentication) {
+        return authentication.getAuthorizationExchange().getAuthorizationRequest().getScopes().contains("openid");
     }
 
     @Override
@@ -110,15 +128,29 @@ class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider imp
                 userInfo.isExternalEmailVerified(),
                 true
         );
-        federatedIdentityService.createNew(
+        userProfileService.createNew(
                 user.getId(),
-                userInfo.externalId(),
-                userInfo.provider(),
-                userInfo.externalUsername(),
-                userInfo.externalEmail(),
-                userInfo.isExternalEmailVerified()
+                userInfo.firstName(),
+                userInfo.lastName(),
+                userInfo.pictureUrl(),
+                userInfo.phoneNumber(),
+                userInfo.gender(),
+                userInfo.birthDate(),
+                userInfo.countryCode()
         );
+        linkUserWithFederatedAccount(user, userInfo);
         return user;
+    }
+
+    private void linkUserWithFederatedAccount(UserInfo userInfo, OAuth2UserInfo oAuth2UserInfo) {
+        federatedIdentityService.createNew(
+                userInfo.getId(),
+                oAuth2UserInfo.externalId(),
+                oAuth2UserInfo.provider(),
+                oAuth2UserInfo.externalUsername(),
+                oAuth2UserInfo.externalEmail(),
+                oAuth2UserInfo.isExternalEmailVerified()
+        );
     }
 
     private Set<SimpleGrantedAuthority> getUserAuthorities(UserInfo userInfo) {
@@ -133,5 +165,10 @@ class OAuth2AuthenticationProvider extends OAuth2LoginAuthenticationProvider imp
     private OAuth2UserMapper getMapper(String registrationId) {
         Assert.isTrue(mappers.containsKey(registrationId), "No mapper defined for registrationId " + registrationId);
         return mappers.get(registrationId);
+    }
+
+    @Override
+    public boolean supports(Class<?> authentication) {
+        return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
