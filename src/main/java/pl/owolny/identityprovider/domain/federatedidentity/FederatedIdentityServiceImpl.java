@@ -6,7 +6,7 @@ import pl.owolny.identityprovider.vo.IdentityProvider;
 import pl.owolny.identityprovider.domain.federatedidentity.exception.FederatedIdentityNotFound;
 import pl.owolny.identityprovider.domain.user.UserId;
 
-import java.util.Set;
+import java.util.Optional;
 
 class FederatedIdentityServiceImpl implements FederatedIdentityService {
 
@@ -18,7 +18,7 @@ class FederatedIdentityServiceImpl implements FederatedIdentityService {
 
     @Override
     @Transactional
-    public FederatedIdentity createNew(UserId userId, String externalId, IdentityProvider provider, String username, Email email, boolean isEmailVerified) {
+    public FederatedIdentityInfo createNew(UserId userId, String externalId, IdentityProvider provider, String username, Email email, boolean isEmailVerified) {
         FederatedIdentity federatedIdentity = new FederatedIdentity(userId, externalId, provider, username, email, null, isEmailVerified);
         federatedIdentityRepository.save(federatedIdentity);
         return federatedIdentity;
@@ -26,8 +26,8 @@ class FederatedIdentityServiceImpl implements FederatedIdentityService {
 
     @Override
     @Transactional(readOnly = true)
-    public Set<FederatedIdentity> getByUserId(UserId userId) {
-        return federatedIdentityRepository.findByUserId(userId);
+    public Optional<FederatedIdentityInfo> getByExternalId(String externalId, IdentityProvider provider) {
+        return federatedIdentityRepository.findByExternalIdAndProvider(externalId, provider).map(fi -> fi);
     }
 
     @Override

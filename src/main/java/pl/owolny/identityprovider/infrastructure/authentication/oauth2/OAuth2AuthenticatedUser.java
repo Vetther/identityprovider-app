@@ -6,10 +6,11 @@ import pl.owolny.identityprovider.domain.user.UserId;
 import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUser;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
-record OAuth2AuthenticatedUser(UserId userId, Collection<? extends GrantedAuthority> authorities)
+record OAuth2AuthenticatedUser(UserId userId,
+                               Collection<? extends GrantedAuthority> authorities,
+                               Map<String, Object> attributes)
         implements AuthenticatedUser, OAuth2User {
 
     @Override
@@ -29,6 +30,6 @@ record OAuth2AuthenticatedUser(UserId userId, Collection<? extends GrantedAuthor
 
     @Override
     public Map<String, Object> getAttributes() {
-        return new HashMap<>();
+        return this.attributes;
     }
 }

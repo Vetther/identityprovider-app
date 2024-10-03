@@ -46,7 +46,7 @@ class CredentialsAuthenticationProviderTest {
         var authorities = Set.of(new SimpleGrantedAuthority("USER_READ"));
 
         var authenticationPrincipal = new CredentialsAuthenticatedUser(userId, authorities);
-        when(userDetailsService.loadUser(usernameOrEmail)).thenReturn(authenticationPrincipal);
+        when(userDetailsService.loadUserByUsername(usernameOrEmail)).thenReturn(authenticationPrincipal);
         when(credentialsService.checkPassword(userId, password)).thenReturn(true);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(usernameOrEmail, password);
@@ -69,7 +69,7 @@ class CredentialsAuthenticationProviderTest {
         var authorities = Set.of(new SimpleGrantedAuthority("USER_READ"));
 
         var authenticationPrincipal = new CredentialsAuthenticatedUser(userId, authorities);
-        when(userDetailsService.loadUser(usernameOrEmail)).thenReturn(authenticationPrincipal);
+        when(userDetailsService.loadUserByUsername(usernameOrEmail)).thenReturn(authenticationPrincipal);
         when(credentialsService.checkPassword(userId, password)).thenReturn(false);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(usernameOrEmail, password);
@@ -84,7 +84,7 @@ class CredentialsAuthenticationProviderTest {
         var usernameOrEmail = "unknown@example.com";
         var password = "password123";
 
-        when(userDetailsService.loadUser(usernameOrEmail)).thenThrow(new UsernameNotFoundException("User not found"));
+        when(userDetailsService.loadUserByUsername(usernameOrEmail)).thenThrow(new UsernameNotFoundException("User not found"));
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(usernameOrEmail, password);
 

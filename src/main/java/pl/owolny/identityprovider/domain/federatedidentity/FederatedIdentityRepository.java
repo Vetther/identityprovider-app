@@ -1,9 +1,8 @@
 package pl.owolny.identityprovider.domain.federatedidentity;
 
-import pl.owolny.identityprovider.domain.user.UserId;
+import pl.owolny.identityprovider.vo.IdentityProvider;
 
 import java.util.Optional;
-import java.util.Set;
 
 interface FederatedIdentityRepository {
 
@@ -13,5 +12,5 @@ interface FederatedIdentityRepository {
 
     Optional<FederatedIdentity> findById(FederatedIdentityId id);
 
-    Set<FederatedIdentity> findByUserId(UserId userId);
+    Optional<FederatedIdentity> findByExternalIdAndProvider(String externalId, IdentityProvider provider);
 }

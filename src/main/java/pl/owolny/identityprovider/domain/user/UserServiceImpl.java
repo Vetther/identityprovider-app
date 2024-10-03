@@ -5,6 +5,7 @@ import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.domain.user.exception.UserAlreadyExistsException;
 import pl.owolny.identityprovider.domain.user.exception.UserNotFoundException;
 
+import java.util.Optional;
 import java.util.UUID;
 
 class UserServiceImpl implements UserService {
@@ -17,8 +18,8 @@ class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserInfo createNew(String username, Email email) {
-        var user = new User(username, email);
+    public UserInfo createNew(String username, Email email, boolean isEmailVerified, boolean isActive) {
+        var user = new User(username, email, isEmailVerified, isActive);
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserAlreadyExistsException(email);
         }
@@ -58,6 +59,11 @@ class UserServiceImpl implements UserService {
     public UserInfo getByEmail(Email email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
+    }
+
+    @Override
+    public Optional<UserInfo> findByEmail(Email email) {
+        return userRepository.findByEmail(email).map(user -> user);
     }
 
     @Override

@@ -32,12 +32,12 @@ class User implements UserInfo {
 
     protected User() {}
 
-    User(String username, Email email) {
+    User(String username, Email email, boolean isEmailVerified, boolean isActive) {
         this.id = UserId.generate();
         this.username = username;
         this.email = email;
-        this.isActive = false;
-        this.isEmailVerified = false;
+        this.isActive = isActive;
+        this.isEmailVerified = isEmailVerified;
     }
 
     void verifyEmail() {

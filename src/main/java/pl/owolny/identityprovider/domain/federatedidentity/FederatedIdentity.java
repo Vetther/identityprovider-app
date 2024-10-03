@@ -9,7 +9,7 @@ import pl.owolny.identityprovider.domain.user.UserId;
 import java.time.LocalDateTime;
 
 @Entity
-public class FederatedIdentity {
+class FederatedIdentity implements FederatedIdentityInfo {
 
     @EmbeddedId
     @AttributeOverride(name = "value", column = @Column(name = "id"))
@@ -50,5 +50,40 @@ public class FederatedIdentity {
 
     void verifyEmail() {
         this.isExternalEmailVerified = true;
+    }
+
+    @Override
+    public UserId getUserId() {
+        return userId;
+    }
+
+    @Override
+    public IdentityProvider getProvider() {
+        return provider;
+    }
+
+    @Override
+    public String getExternalId() {
+        return externalId;
+    }
+
+    @Override
+    public String getExternalUsername() {
+        return externalUsername;
+    }
+
+    @Override
+    public Email getExternalEmail() {
+        return externalEmail;
+    }
+
+    @Override
+    public boolean isExternalEmailVerified() {
+        return isExternalEmailVerified;
+    }
+
+    @Override
+    public LocalDateTime getConnectedAt() {
+        return connectedAt;
     }
 }

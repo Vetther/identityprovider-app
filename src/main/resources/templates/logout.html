@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout :: layout(~{::title}, ~{::main})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Wylogowanie</title>
+</head>
+<body>
+<main class="container">
+    <div th:if="${not #lists.isEmpty(param.error)}" class="alert alert-danger" role="alert" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}"></div>
+    <div class="alert alert-success" role="alert">
+        You have been logged out.
+    </div>
+</main>
+</body>
+</html>

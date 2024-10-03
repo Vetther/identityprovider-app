@@ -1,13 +1,11 @@
 package pl.owolny.identityprovider.domain.federatedidentity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
-import pl.owolny.identityprovider.domain.user.UserId;
+import pl.owolny.identityprovider.vo.IdentityProvider;
 
 import java.util.Optional;
-import java.util.Set;
 
 interface FederatedIdentityRepositoryJpa extends FederatedIdentityRepository, JpaRepository<FederatedIdentity, FederatedIdentityId> {
 
-    Set<FederatedIdentity> findByUserId(UserId userId);
+    Optional<FederatedIdentity> findByExternalIdAndProvider(String externalId, IdentityProvider provider);
 }

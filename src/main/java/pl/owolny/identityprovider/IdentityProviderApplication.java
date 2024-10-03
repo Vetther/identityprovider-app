@@ -38,10 +38,14 @@ public class IdentityProviderApplication {
                     <h1>Welcome to Identity Provider</h1>
                     <p>Your ID: %s</p>
                     <p>Your authorities: %s</p>
+                    <a href="/logout">Logout</a>
                     """.formatted(((AuthenticatedUser) user).getUserId().value(), ((AuthenticatedUser) user).getAuthorities());
         }
-        return "<h1>Welcome to Identity Provider</h1> " +
-                "<p>Object:</p>" + user;
+        return """
+                <h1>Welcome to Identity Provider</h1>
+                <p>Your user: %s</p>
+                <a href="/logout">Logout</a>
+                """.formatted(user);
     }
 
     @Bean
@@ -58,7 +62,7 @@ public class IdentityProviderApplication {
         log.warn("Role: {}", roleInfo.getName());
         log.warn("Authorities: {}", roleInfo.getAuthorities());
 
-        UserInfo vetther = userService.createNew("test", new Email("vetther@youtube.hub.pl"));
+        UserInfo vetther = userService.createNew("test", new Email("vetther@youtube.hub.pl"), false, true);
         log.warn("Created user: {}, {}", vetther.getUsername(), vetther.getEmail());
 
         userService.verifyEmail(vetther.getId());

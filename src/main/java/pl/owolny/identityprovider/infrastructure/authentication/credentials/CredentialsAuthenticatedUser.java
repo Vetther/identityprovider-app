@@ -7,7 +7,7 @@ import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUse
 
 import java.util.Collection;
 
-record CredentialsAuthenticatedUser(UserId userId,Collection<? extends GrantedAuthority> authorities)
+record CredentialsAuthenticatedUser(UserId userId, Collection<? extends GrantedAuthority> authorities)
         implements AuthenticatedUser, UserDetails {
 
     @Override

@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
@@ -31,7 +32,6 @@ class SecurityConfig {
                                 .requestMatchers("/css/**", "/images/**").permitAll()
                                 .requestMatchers("/webjars/**").permitAll()
                                 .requestMatchers("/error").permitAll()
-                                .requestMatchers("/logout").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
