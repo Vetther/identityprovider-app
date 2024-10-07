@@ -32,7 +32,6 @@ class FederatedIdentity implements FederatedIdentityInfo {
 
     private boolean isExternalEmailVerified;
 
-    @CreationTimestamp
     private LocalDateTime connectedAt;
 
     FederatedIdentity(UserId userId, String externalId, IdentityProvider provider, String externalUsername, Email externalEmail, LocalDateTime connectedAt, boolean isExternalEmailVerified) {

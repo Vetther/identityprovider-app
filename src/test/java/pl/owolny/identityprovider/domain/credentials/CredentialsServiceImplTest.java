@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CredentialsServiceImplTest {
 
-    private final CredentialsConfiguration credentialsConfiguration = new CredentialsConfiguration(new MockCredentialsRepository());
-    private final CredentialsService credentialsService = credentialsConfiguration.credentialsService();
-    private final PasswordEncoder passwordEncoder = credentialsConfiguration.encoder();
+    private final CredentialsConfig credentialsConfig = new CredentialsConfig(new MockCredentialsRepository());
+    private final CredentialsService credentialsService = credentialsConfig.credentialsService();
+    private final PasswordEncoder passwordEncoder = credentialsConfig.encoder();
 
     @Test
     void createNew_ShouldCreateAndSaveCredentials() {

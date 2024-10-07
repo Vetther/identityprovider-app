@@ -41,7 +41,7 @@ class CredentialsAuthenticationProvider implements AuthenticationProvider, Authe
     }
 
     @Override
-    public <U extends AuthenticatedUser> Authentication createSuccessAuthentication(U user, Authentication authentication) {
+    public Authentication createSuccessAuthentication(AuthenticatedUser user, Authentication authentication) {
         UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(user, authentication.getCredentials(), user.getAuthorities());
         result.setDetails(authentication.getDetails());
         log.info("User authenticated: {}", user);

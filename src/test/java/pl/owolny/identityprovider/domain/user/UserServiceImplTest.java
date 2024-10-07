@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceImplTest {
 
-    private final UserConfiguration userConfiguration = new UserConfiguration(new MockUserRepository());
-    private final UserService userService = userConfiguration.userService();
+    private final UserConfig userConfig = new UserConfig(new MockUserRepository());
+    private final UserService userService = userConfig.userService();
 
     @Test
     void createNew_ShouldCreateAndSaveUser() {

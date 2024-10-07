@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-class UserConfiguration {
+class UserConfig {
 
     private final UserRepository userRepository;
 
-    UserConfiguration(UserRepository userRepository) {
+    UserConfig(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

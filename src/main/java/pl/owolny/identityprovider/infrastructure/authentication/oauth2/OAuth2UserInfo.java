@@ -23,8 +23,6 @@ public record OAuth2UserInfo(
         CountryCode countryCode
 ) implements FederatedIdentityInfo, UserProfileInfo {
 
-    public static String NO_SPECIFIED = null;
-
     @Override
     public UserId getUserId() {
         return null;

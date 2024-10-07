@@ -18,15 +18,17 @@ import pl.owolny.identityprovider.domain.federatedidentity.FederatedIdentityServ
 import pl.owolny.identityprovider.domain.role.RoleId;
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
+import pl.owolny.identityprovider.domain.token.OAuth2LinkingToken;
+import pl.owolny.identityprovider.domain.token.OAuth2LinkingTokenService;
 import pl.owolny.identityprovider.domain.user.UserInfo;
 import pl.owolny.identityprovider.domain.user.UserService;
 import pl.owolny.identityprovider.domain.userprofile.UserProfileService;
 import pl.owolny.identityprovider.infrastructure.authentication.AuthenticationFactory;
 import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUser;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.exception.OAuth2EmailUnverifiedException;
-import pl.owolny.identityprovider.infrastructure.authentication.oauth2.map.OAuth2UserMapper;
 import pl.owolny.identityprovider.vo.Email;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -42,9 +44,11 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
     private final RoleUserService roleUserService;
     private final RoleService roleService;
     private final UserProfileService userProfileService;
+    private final OAuth2LinkingTokenService tokenService;
     private final Map<String, OAuth2UserMapper> mappers;
 
-    public OAuth2AuthenticationProvider(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, UserProfileService userProfileService, Map<String, OAuth2UserMapper> mappers) {
+    public OAuth2AuthenticationProvider(UserService userService, FederatedIdentityService federatedIdentityService, RoleUserService roleUserService, RoleService roleService, UserProfileService userProfileService, OAuth2LinkingTokenService tokenService, Map<String, OAuth2UserMapper> mappers) {
+        this.tokenService = tokenService;
         this.oauth2Provider = new OAuth2LoginAuthenticationProvider(new DefaultAuthorizationCodeTokenResponseClient(), new DefaultOAuth2UserService());
         this.oidcProvider = new OidcAuthorizationCodeAuthenticationProvider(new DefaultAuthorizationCodeTokenResponseClient(), new OidcUserService());
         this.userProfileService = userProfileService;
@@ -85,6 +89,7 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
                 throw new OAuth2EmailUnverifiedException(oAuth2UserInfo);
             }
             UserInfo userInfo = createNewUser(oAuth2UserInfo);
+            linkUserWithFederatedAccount(userInfo, oAuth2UserInfo);
             log.info("[OAuth2] User with email didnt exists, created new: {}", userInfo.getId());
             return createSuccessAuthentication(new OAuth2AuthenticatedUser(userInfo.getId(), getUserAuthorities(userInfo), null), authenticated);
         }
@@ -107,7 +112,7 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
     }
 
     @Override
-    public <U extends AuthenticatedUser> Authentication createSuccessAuthentication(U user, Authentication authentication) {
+    public Authentication createSuccessAuthentication(AuthenticatedUser user, Authentication authentication) {
         var authenticationResult = new OAuth2LoginAuthenticationToken(
                 ((OAuth2LoginAuthenticationToken) authentication).getClientRegistration(),
                 ((OAuth2LoginAuthenticationToken) authentication).getAuthorizationExchange(),
@@ -121,24 +126,25 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
         return authenticationResult;
     }
 
-    private UserInfo createNewUser(OAuth2UserInfo userInfo) {
+    private UserInfo createNewUser(OAuth2UserInfo oAuth2UserInfo) {
         var user = userService.createNew(
-                userInfo.externalUsername(),
-                userInfo.externalEmail(),
-                userInfo.isExternalEmailVerified(),
+                oAuth2UserInfo.externalUsername(),
+                oAuth2UserInfo.externalEmail(),
+                oAuth2UserInfo.isExternalEmailVerified(),
                 true
         );
         userProfileService.createNew(
                 user.getId(),
-                userInfo.firstName(),
-                userInfo.lastName(),
-                userInfo.pictureUrl(),
-                userInfo.phoneNumber(),
-                userInfo.gender(),
-                userInfo.birthDate(),
-                userInfo.countryCode()
+                oAuth2UserInfo.firstName(),
+                oAuth2UserInfo.lastName(),
+                oAuth2UserInfo.pictureUrl(),
+                oAuth2UserInfo.phoneNumber(),
+                oAuth2UserInfo.gender(),
+                oAuth2UserInfo.birthDate(),
+                oAuth2UserInfo.countryCode()
         );
-        linkUserWithFederatedAccount(user, userInfo);
+
+//        this.tokenService.createToken(new OAuth2LinkingToken(user, oAuth2UserInfo));
         return user;
     }
 

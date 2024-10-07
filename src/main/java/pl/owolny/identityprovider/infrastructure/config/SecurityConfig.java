@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.client.RestClient;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2AuthenticationFailureHandler;
 
 import java.util.List;
 
@@ -27,19 +27,23 @@ class SecurityConfig {
     @Order(2)
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorize ->
-                        authorize
-                                .requestMatchers("/css/**", "/images/**").permitAll()
-                                .requestMatchers("/webjars/**").permitAll()
-                                .requestMatchers("/error").permitAll()
-                                .anyRequest().authenticated()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/css/**", "/images/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
                 .formLogin(formLogin -> formLogin
-                        .loginPage("/login").permitAll()
+                        .loginPage("/login")
+                        .failureHandler(new OAuth2AuthenticationFailureHandler())
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
-                        .loginPage("/login").permitAll()
+                        .loginPage("/login")
+                        .failureHandler(new OAuth2AuthenticationFailureHandler())
                 )
                 .authenticationManager(new ProviderManager(this.authenticationProviders))
                 .build();

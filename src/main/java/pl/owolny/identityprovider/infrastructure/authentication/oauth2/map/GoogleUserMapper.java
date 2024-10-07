@@ -4,6 +4,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuth
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Component;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserInfo;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserMapper;
 import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.vo.IdentityProvider;
 

@@ -12,11 +12,14 @@ import pl.owolny.identityprovider.domain.credentials.CredentialsService;
 import pl.owolny.identityprovider.domain.role.RoleInfo;
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
+import pl.owolny.identityprovider.domain.token.OAuth2LinkingToken;
+import pl.owolny.identityprovider.domain.token.OAuth2LinkingTokenService;
 import pl.owolny.identityprovider.domain.user.UserInfo;
 import pl.owolny.identityprovider.domain.user.UserService;
 import pl.owolny.identityprovider.domain.userprofile.UserProfileInfo;
 import pl.owolny.identityprovider.domain.userprofile.UserProfileService;
 import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUser;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserInfo;
 import pl.owolny.identityprovider.vo.*;
 
 import java.time.LocalDate;
@@ -47,7 +50,7 @@ public class IdentityProviderApplication {
     }
 
     @Bean
-    public String test(UserService userService, UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) {
+    public String test(OAuth2LinkingTokenService tokenService, UserService userService, UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) {
 
         RoleInfo roleInfo = roleService.createNew(RoleName.ROLE_USER);
         log.warn("Created role: {}", roleInfo.getName());
@@ -87,6 +90,9 @@ public class IdentityProviderApplication {
         log.warn("Created credentials for user: {}", vetther.getUsername());
         boolean checkPassword = credentialsService.checkPassword(vetther.getId(), "test");
         log.warn("Password check: {}", checkPassword);
+
+        OAuth2UserInfo oAuth2UserInfo = new OAuth2UserInfo(IdentityProvider.GOOGLE, "test", "test", vetther.getEmail(), true, "test", "test", "test", null, null, null, null);
+        tokenService.saveLinkData(vetther, oAuth2UserInfo);
 
         return "TEST";
     }

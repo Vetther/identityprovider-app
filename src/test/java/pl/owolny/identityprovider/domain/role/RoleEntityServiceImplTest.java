@@ -6,10 +6,10 @@ import pl.owolny.identityprovider.domain.role.exception.RoleNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RoleServiceImplTest {
+class RoleEntityServiceImplTest {
 
-    private final RoleConfiguration roleConfiguration = new RoleConfiguration(new MockRoleRepository());
-    private final RoleService roleService = roleConfiguration.roleService();
+    private final RoleConfig roleConfig = new RoleConfig(new MockRoleRepository());
+    private final RoleService roleService = roleConfig.roleService();
 
     @Test
     void createNew_ShouldCreateAndSaveRole() {

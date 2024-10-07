@@ -1,6 +1,5 @@
 package pl.owolny.identityprovider.infrastructure.authentication.oauth2.map;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
@@ -9,6 +8,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserInfo;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserMapper;
 import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.vo.IdentityProvider;
 

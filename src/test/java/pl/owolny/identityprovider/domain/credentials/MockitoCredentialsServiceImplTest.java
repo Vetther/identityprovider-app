@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import pl.owolny.identityprovider.domain.credentials.exception.CredentialsAlreadyExists;
+import pl.owolny.identityprovider.domain.credentials.exception.CredentialsNotFound;
 import pl.owolny.identityprovider.vo.PasswordHash;
 import pl.owolny.identityprovider.domain.user.UserId;
 
@@ -54,7 +56,7 @@ class MockitoCredentialsServiceImplTest {
 
         when(credentialsRepository.findByUserId(userId)).thenReturn(Optional.of(mock(Credentials.class)));
 
-        assertThrows(IllegalArgumentException.class, () -> credentialsService.createNew(userId, rawPassword));
+        assertThrows(CredentialsAlreadyExists.class, () -> credentialsService.createNew(userId, rawPassword));
 
         verify(credentialsRepository, never()).save(any(Credentials.class));
     }
@@ -71,7 +73,7 @@ class MockitoCredentialsServiceImplTest {
         credentialsService.updatePassword(userId, newPassword);
 
         verify(existingCredentials).updatePassword(newPassword);
-        verify(credentialsRepository).save(existingCredentials);
+        verify(credentialsRepository, never()).save(existingCredentials);
     }
 
     @Test
@@ -81,7 +83,7 @@ class MockitoCredentialsServiceImplTest {
 
         when(credentialsRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> credentialsService.updatePassword(userId, newPassword));
+        assertThrows(CredentialsNotFound.class, () -> credentialsService.updatePassword(userId, newPassword));
 
         verify(credentialsRepository, never()).save(any(Credentials.class));
     }

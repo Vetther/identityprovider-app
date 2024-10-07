@@ -6,8 +6,8 @@
 <body>
 <main class="container">
     <form class="form-signin w-100 m-auto" method="post" th:action="@{/login}">
-        <div th:if="${not #lists.isEmpty(param.error)}" class="alert alert-danger" role="alert" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}"></div>
-        <div th:if="${param.logout}" class="alert alert-success" role="alert">
+        <div th:if="${not #lists.isEmpty(param.error)}" class="alert alert-danger" roleEntityJpa="alert" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}"></div>
+        <div th:if="${param.logout}" class="alert alert-success" roleEntityJpa="alert">
             You have been logged out.
         </div>
         <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
@@ -24,15 +24,15 @@
         </div>
         <div>
             <button class="w-100 btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/google" role="link" style="margin-top: 10px">
+            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/google" roleEntityJpa="link" style="margin-top: 10px">
                 <img src="/images/google.png" th:src="@{/images/google.png}" width="20" style="margin-right: 5px;" alt="Sign in with Google">
                 Sign in with Google
             </a>
-            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/github" role="link" style="margin-top: 10px">
+            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/github" roleEntityJpa="link" style="margin-top: 10px">
                 <img src="/images/github.png" th:src="@{/images/github.png}" width="28" style="margin-right: 5px;" alt="Sign in with Github">
                 Sign in with GitHub
             </a>
-            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/facebook" role="link" style="margin-top: 10px">
+            <a class="w-100 btn btn-light btn-block bg-white" href="/oauth2/authorization/facebook" roleEntityJpa="link" style="margin-top: 10px">
                 <img src="/images/github.png" th:src="@{/images/facebook.svg}" width="22" style="margin-right: 5px;" alt="Sign in with Github">
                 Sign in with Facebook
             </a>

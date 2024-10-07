@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-class FederatedIdentityConfiguration {
+class FederatedIdentityConfig {
 
     private final FederatedIdentityRepository federatedIdentityRepository;
 
-    public FederatedIdentityConfiguration(FederatedIdentityRepository federatedIdentityRepository) {
+    public FederatedIdentityConfig(FederatedIdentityRepository federatedIdentityRepository) {
         this.federatedIdentityRepository = federatedIdentityRepository;
     }
 

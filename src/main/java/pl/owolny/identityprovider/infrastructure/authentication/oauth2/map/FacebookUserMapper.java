@@ -2,10 +2,10 @@ package pl.owolny.identityprovider.infrastructure.authentication.oauth2.map;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserInfo;
+import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserMapper;
 import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.vo.IdentityProvider;
 
@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
-
 
 @Slf4j
 @Component("facebook")
@@ -33,8 +32,6 @@ class FacebookUserMapper implements OAuth2UserMapper {
         String firstName = oAuth2User.getAttribute("first_name");
         String lastName = oAuth2User.getAttribute("last_name");
         LocalDate birthday = convertToLocalDate(oAuth2User.getAttribute("birthday"));
-
-        System.out.println(birthday);
 
         return new OAuth2UserInfo(
                 identityProvider,

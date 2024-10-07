@@ -5,8 +5,8 @@
 </head>
 <body>
 <main class="container">
-    <div th:if="${not #lists.isEmpty(param.error)}" class="alert alert-danger" role="alert" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}"></div>
-    <div class="alert alert-success" role="alert">
+    <div th:if="${not #lists.isEmpty(param.error)}" class="alert alert-danger" roleEntityJpa="alert" th:text="${session.SPRING_SECURITY_LAST_EXCEPTION?.message}"></div>
+    <div class="alert alert-success" roleEntityJpa="alert">
         You have been logged out.
     </div>
 </main>

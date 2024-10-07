@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
-class RoleConfiguration {
+class RoleConfig {
 
     private final RoleRepository roleRepository;
 
-    RoleConfiguration(RoleRepository roleRepository) {
+    RoleConfig(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 
