@@ -9,7 +9,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 @Configuration(proxyBeanMethods = false)
-public class JwkConfig {
+class JwkConfig {
 
     private final RSAPrivateKey privateKeyResource;
     private final RSAPublicKey publicKeyResource;

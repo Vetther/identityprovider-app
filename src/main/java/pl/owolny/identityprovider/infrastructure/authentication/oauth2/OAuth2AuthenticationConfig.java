@@ -3,6 +3,7 @@ package pl.owolny.identityprovider.infrastructure.authentication.oauth2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import pl.owolny.identityprovider.domain.federatedidentity.FederatedIdentityService;
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
@@ -36,5 +37,10 @@ class OAuth2AuthenticationConfig {
     @Bean
     AuthenticationProvider oAuth2AuthenticationProvider() {
         return new OAuth2AuthenticationProvider(this.userService, this.federatedIdentityService, this.roleUserService, this.roleService, this.userProfileService, this.tokenService, this.mappers);
+    }
+
+    @Bean
+    AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
+        return new OAuth2AuthenticationFailureHandler(this.tokenService);
     }
 }

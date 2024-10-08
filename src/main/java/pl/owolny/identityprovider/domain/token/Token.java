@@ -11,9 +11,9 @@ abstract class Token implements Serializable {
     private final String id;
     private final LocalDateTime createdAt;
 
-    protected Token(String key) {
-        this.id = key;
-        this.createdAt = LocalDateTime.now();
+    protected Token(String id, LocalDateTime createdAt) {
+        this.id = id;
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getCreatedAt() {

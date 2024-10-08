@@ -4,7 +4,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +11,7 @@ import pl.owolny.identityprovider.domain.credentials.CredentialsService;
 import pl.owolny.identityprovider.domain.role.RoleInfo;
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
-import pl.owolny.identityprovider.domain.token.OAuth2LinkingToken;
+import pl.owolny.identityprovider.domain.token.OAuth2LinkingTokenInfo;
 import pl.owolny.identityprovider.domain.token.OAuth2LinkingTokenService;
 import pl.owolny.identityprovider.domain.user.UserInfo;
 import pl.owolny.identityprovider.domain.user.UserService;
@@ -23,6 +22,7 @@ import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2Use
 import pl.owolny.identityprovider.vo.*;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Log4j2
 @RestController
@@ -50,7 +50,7 @@ public class IdentityProviderApplication {
     }
 
     @Bean
-    public String test(OAuth2LinkingTokenService tokenService, UserService userService, UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) {
+    public String test(OAuth2LinkingTokenService tokenService, UserService userService, UserProfileService userProfileService, RoleService roleService, RoleUserService roleUserService, CredentialsService credentialsService) throws InterruptedException {
 
         RoleInfo roleInfo = roleService.createNew(RoleName.ROLE_USER);
         log.warn("Created role: {}", roleInfo.getName());
@@ -93,6 +93,10 @@ public class IdentityProviderApplication {
 
         OAuth2UserInfo oAuth2UserInfo = new OAuth2UserInfo(IdentityProvider.GOOGLE, "test", "test", vetther.getEmail(), true, "test", "test", "test", null, null, null, null);
         tokenService.saveLinkData(vetther, oAuth2UserInfo);
+
+        Optional<OAuth2LinkingTokenInfo> linkData = tokenService.getLinkData(vetther, oAuth2UserInfo);
+        log.warn("Link data exists: {}", linkData.isPresent());
+        linkData.ifPresent(oAuth2LinkingToken -> log.warn("Link data: {}", oAuth2LinkingToken));
 
         return "TEST";
     }

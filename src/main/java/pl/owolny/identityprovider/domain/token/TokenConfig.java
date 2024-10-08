@@ -8,9 +8,9 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories(basePackages = "pl.owolny.identityprovider.domain.token")
 class TokenConfig {
 
-    private final TokenRepository<OAuth2LinkingToken> tokenRepository;
+    private final OAuth2LinkingTokenRepository tokenRepository;
 
-    public TokenConfig(TokenRepository<OAuth2LinkingToken> tokenRepository) {
+    public TokenConfig(OAuth2LinkingTokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
     }
 

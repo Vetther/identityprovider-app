@@ -2,65 +2,64 @@ package pl.owolny.identityprovider.domain.token;
 
 import org.springframework.data.redis.core.RedisHash;
 import pl.owolny.identityprovider.domain.user.UserId;
-import pl.owolny.identityprovider.domain.user.UserInfo;
-import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2UserInfo;
 import pl.owolny.identityprovider.vo.Email;
 import pl.owolny.identityprovider.vo.IdentityProvider;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 @RedisHash(value = "OAuth2LinkingToken", timeToLive = 60L * 5)
-public class OAuth2LinkingToken extends Token {
+class OAuth2LinkingToken extends Token implements OAuth2LinkingTokenInfo {
 
-    private final static String KEY_PREFIX = "OAuth2LinkingToken";
-
-    private final UUID userId;
-    private final String userEmail;
+    private final UserId userId;
+    private final Email userEmail;
     private final String userName;
     private final String externalId;
-    private final String externalEmail;
+    private final Email externalEmail;
     private final String externalUsername;
     private final IdentityProvider identityProvider;
 
-    OAuth2LinkingToken(UserInfo userInfo, OAuth2UserInfo oAuth2UserInfo) {
-        super(getKey(userInfo.getId(), oAuth2UserInfo.externalId()));
-        this.userId = userInfo.getId().value();
-        this.userEmail = userInfo.getEmail().value();
-        this.userName = userInfo.getUsername();
-        this.externalId = oAuth2UserInfo.externalId();
-        this.externalEmail = oAuth2UserInfo.externalEmail().value();
-        this.externalUsername = oAuth2UserInfo.externalUsername();
-        this.identityProvider = oAuth2UserInfo.provider();
+    OAuth2LinkingToken(String id, LocalDateTime createdAt, UserId userId, Email userEmail, String userName, String externalId, Email externalEmail, String externalUsername, IdentityProvider identityProvider) {
+        super(id, createdAt);
+        this.userId = userId;
+        this.userEmail = userEmail;
+        this.userName = userName;
+        this.externalId = externalId;
+        this.externalEmail = externalEmail;
+        this.externalUsername = externalUsername;
+        this.identityProvider = identityProvider;
     }
 
-    public static String getKey(UserId userId, String externalId) {
-        return KEY_PREFIX + ":" + userId.value() + ":" + externalId;
-    }
-
+    @Override
     public UserId getUserId() {
-        return new UserId(userId);
+        return userId;
     }
 
+    @Override
     public Email getUserEmail() {
-        return new Email(userEmail);
+        return userEmail;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
 
+    @Override
     public String getExternalId() {
         return externalId;
     }
 
+    @Override
     public Email getExternalEmail() {
-        return new Email(externalEmail);
+        return externalEmail;
     }
 
+    @Override
     public String getExternalUsername() {
         return externalUsername;
     }
 
+    @Override
     public IdentityProvider getIdentityProvider() {
         return identityProvider;
     }

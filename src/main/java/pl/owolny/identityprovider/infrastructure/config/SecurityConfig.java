@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import pl.owolny.identityprovider.infrastructure.authentication.oauth2.OAuth2AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import java.util.List;
 
@@ -18,9 +18,11 @@ import java.util.List;
 class SecurityConfig {
 
     private final List<AuthenticationProvider> authenticationProviders;
+    private final AuthenticationFailureHandler authenticationFailureHandler;
 
-    SecurityConfig(List<AuthenticationProvider> authenticationProviders) {
+    SecurityConfig(List<AuthenticationProvider> authenticationProviders, AuthenticationFailureHandler authenticationFailureHandler) {
         this.authenticationProviders = authenticationProviders;
+        this.authenticationFailureHandler = authenticationFailureHandler;
     }
 
     @Bean
@@ -39,11 +41,11 @@ class SecurityConfig {
                 )
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
-                        .failureHandler(new OAuth2AuthenticationFailureHandler())
+                        .failureHandler(this.authenticationFailureHandler)
                 )
                 .oauth2Login(oauth2Login -> oauth2Login
                         .loginPage("/login")
-                        .failureHandler(new OAuth2AuthenticationFailureHandler())
+                        .failureHandler(this.authenticationFailureHandler)
                 )
                 .authenticationManager(new ProviderManager(this.authenticationProviders))
                 .build();

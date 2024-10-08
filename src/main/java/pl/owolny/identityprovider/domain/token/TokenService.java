@@ -2,13 +2,27 @@ package pl.owolny.identityprovider.domain.token;
 
 import java.util.Optional;
 
-interface TokenService<T extends Token> {
+abstract class TokenService<T extends Token> {
 
-    void createToken(T token);
+    private final TokenRepository<T> tokenRepository;
 
-    Optional<T> getToken(String id);
+    public TokenService(TokenRepository<T> tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
 
-    boolean isTokenValid(String id);
+    protected void createToken(T token) {
+        this.tokenRepository.save(token);
+    }
 
-    void deleteToken(String id);
+    protected Optional<T> getToken(String key) {
+        return this.tokenRepository.findById(key);
+    }
+
+    protected boolean isTokenValid(String key) {
+        return this.tokenRepository.existsById(key);
+    }
+
+    protected void deleteToken(String key) {
+        this.tokenRepository.deleteById(key);
+    }
 }

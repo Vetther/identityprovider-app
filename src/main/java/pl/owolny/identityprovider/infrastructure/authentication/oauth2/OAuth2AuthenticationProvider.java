@@ -18,7 +18,6 @@ import pl.owolny.identityprovider.domain.federatedidentity.FederatedIdentityServ
 import pl.owolny.identityprovider.domain.role.RoleId;
 import pl.owolny.identityprovider.domain.role.RoleService;
 import pl.owolny.identityprovider.domain.roleuser.RoleUserService;
-import pl.owolny.identityprovider.domain.token.OAuth2LinkingToken;
 import pl.owolny.identityprovider.domain.token.OAuth2LinkingTokenService;
 import pl.owolny.identityprovider.domain.user.UserInfo;
 import pl.owolny.identityprovider.domain.user.UserService;
@@ -28,7 +27,6 @@ import pl.owolny.identityprovider.infrastructure.authentication.AuthenticatedUse
 import pl.owolny.identityprovider.infrastructure.authentication.oauth2.exception.OAuth2EmailUnverifiedException;
 import pl.owolny.identityprovider.vo.Email;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -86,7 +84,7 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
         if (!userWithEmailExists) {
             if (!oAuth2UserInfo.isExternalEmailVerified()) {
                 log.info("[OAuth2] User with email didnt exists, but external email was not verified: {}", email);
-                throw new OAuth2EmailUnverifiedException(oAuth2UserInfo);
+                throw new OAuth2EmailUnverifiedException(null, oAuth2UserInfo);
             }
             UserInfo userInfo = createNewUser(oAuth2UserInfo);
             linkUserWithFederatedAccount(userInfo, oAuth2UserInfo);
@@ -113,13 +111,14 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
 
     @Override
     public Authentication createSuccessAuthentication(AuthenticatedUser user, Authentication authentication) {
+        OAuth2LoginAuthenticationToken result = (OAuth2LoginAuthenticationToken) authentication;
         var authenticationResult = new OAuth2LoginAuthenticationToken(
-                ((OAuth2LoginAuthenticationToken) authentication).getClientRegistration(),
-                ((OAuth2LoginAuthenticationToken) authentication).getAuthorizationExchange(),
+                result.getClientRegistration(),
+                result.getAuthorizationExchange(),
                 (OAuth2User) user,
                 user.getAuthorities(),
-                ((OAuth2LoginAuthenticationToken) authentication).getAccessToken(),
-                ((OAuth2LoginAuthenticationToken) authentication).getRefreshToken()
+                result.getAccessToken(),
+                result.getRefreshToken()
         );
         authenticationResult.setDetails(authentication.getDetails());
         log.info("[OAuth2] User authenticated: {}", user);
@@ -143,8 +142,6 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
                 oAuth2UserInfo.birthDate(),
                 oAuth2UserInfo.countryCode()
         );
-
-//        this.tokenService.createToken(new OAuth2LinkingToken(user, oAuth2UserInfo));
         return user;
     }
 
