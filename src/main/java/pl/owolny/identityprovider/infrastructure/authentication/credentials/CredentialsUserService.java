@@ -27,6 +27,7 @@ class CredentialsUserService implements UserDetailsService {
         this.roleService = roleService;
     }
 
+    @Override
     public CredentialsAuthenticatedUser loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
         UserInfo userInfo = this.getUserInfo(usernameOrEmail);
         Set<RoleInfo> userRoles = this.getUserRoles(userInfo);

@@ -34,9 +34,11 @@ class OAuth2AuthenticationFailureHandler extends SimpleUrlAuthenticationFailureH
                 && oAuth2EmailUnverifiedException.getoAuth2UserInfo() != null) {
 
             tokenService.saveLinkData(oAuth2EmailUnverifiedException.getUserInfo(), oAuth2EmailUnverifiedException.getoAuth2UserInfo());
-            request.getSession().setAttribute("OAUTH2_LINK_USER_ID", oAuth2EmailUnverifiedException.getUserInfo().getId());
-            request.getSession().setAttribute("OAUTH2_LINK_EXTERNAL_ID", oAuth2EmailUnverifiedException.getoAuth2UserInfo().externalId());
+            request.setAttribute("OAUTH2_LINK_USER", oAuth2EmailUnverifiedException.getUserInfo());
+            request.setAttribute("OAUTH2_LINK_EXTERNAL", oAuth2EmailUnverifiedException.getoAuth2UserInfo());
             redirectUrl = UriComponentsBuilder.fromUriString("/" + "verify").toUriString();
+
+            super.setUseForward(true);
         }
 
         super.setDefaultFailureUrl(redirectUrl);

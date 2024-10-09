@@ -34,6 +34,7 @@ class SecurityConfig {
                         .requestMatchers("/webjars/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/verify").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sessionManagement -> sessionManagement

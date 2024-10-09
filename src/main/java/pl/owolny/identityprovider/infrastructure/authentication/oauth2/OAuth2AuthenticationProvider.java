@@ -94,7 +94,7 @@ class OAuth2AuthenticationProvider implements AuthenticationProvider, Authentica
 
         UserInfo userInfo = userByEmail.get();
 
-        if (!userInfo.isEmailVerified() && oAuth2UserInfo.isExternalEmailVerified()) {
+        if ((userInfo.isEmailVerified() && oAuth2UserInfo.isExternalEmailVerified())) {
             log.info("[OAuth2] UserInfo or OAuth2UserInfo email was not verified: {}", userInfo.getId());
             throw new OAuth2EmailUnverifiedException(userInfo, oAuth2UserInfo);
         }

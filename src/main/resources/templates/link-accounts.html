@@ -6,8 +6,8 @@
 <body>
 <main class="container">
     <h1>Link Your Accounts</h1>
-    <p>We've found an existing account (<span th:text="${username}"></span>) with your email: <span th:text="${email}"></span></p>
-    <p>Would you like to link this account with your <span th:text="${provider}"></span> account?</p>
+    <p>We've found an existing account (<span th:text="${userName}"></span> <span th:text="${userEmail}"></span> <span th:text="${userId}"></span>)</p>
+    <p>Would you like to link this account with your external account? (<span th:text="${externalName}"></span> <span th:text="${externalEmail}"></span> <span th:text="${externalId}"></span>) [<span th:text="${provider}"></span>]</p>
 
     <form method="post" hx-post="/link-accounts" hx-trigger="submit" hx-target=".container" hx-swap="innerHTML">
         <button type="submit" name="action" value="link">Yes, link accounts</button>
